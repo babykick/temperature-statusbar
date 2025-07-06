@@ -70,7 +70,8 @@ class TemperatureApp(rumps.App):
                 display_parts.append(f"GPU:{temps['GPU']}°C")
                 
             if kernel_cpu is not None:
-                display_parts.append(f"Kernel:{kernel_cpu}ms/s")
+                # display_parts.append(f"Kernel:{kernel_cpu}ms/s")
+                display_parts.append(f"Kernel:{kernel_cpu / 10:.1f}%")
             
             if display_parts:
                 self.title = " | ".join(display_parts)
