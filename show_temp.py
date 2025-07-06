@@ -36,19 +36,21 @@ class TemperatureApp(rumps.App):
         """获取 kernel_task 进程的 CPU 使用率"""
         try:
             result = subprocess.run(
-                ["top", "-l", "1"],
+                ["sudo", "powermetrics", "--samplers", "tasks", "-n1"],
                 capture_output=True,
                 text=True
             )
             output = result.stdout
             
-            # 查找 kernel_task 进程
+            # 查找 kernel_task 进程行
             for line in output.split('\n'):
-                if 'kernel_task' in line:
+                if 'kernel_task' in line and line.strip().startswith('kernel_task'):
+                    # 解析格式: kernel_task  0  80.51  0.00  1.99  0.00  779.91  78.01
                     parts = line.split()
                     if len(parts) >= 3:
-                        cpu_str = parts[2].rstrip('%')
-                        return float(cpu_str)
+                        # 第三列是 CPU ms/s 值
+                        cpu_value = float(parts[2])
+                        return cpu_value
             return None
         except Exception as e:
             return None
@@ -68,7 +70,7 @@ class TemperatureApp(rumps.App):
                 display_parts.append(f"GPU:{temps['GPU']}°C")
                 
             if kernel_cpu is not None:
-                display_parts.append(f"K:{kernel_cpu}%")
+                display_parts.append(f"Kernel:{kernel_cpu}ms/s")
             
             if display_parts:
                 self.title = " | ".join(display_parts)
